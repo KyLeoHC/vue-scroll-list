@@ -7,7 +7,7 @@
     "example": "example"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dist": "rollup -c"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,9 @@
   "bugs": {
     "url": "https://github.com/KyLeoHC/vue-scroll-list/issues"
   },
-  "homepage": "https://github.com/KyLeoHC/vue-scroll-list#readme"
+  "homepage": "https://github.com/KyLeoHC/vue-scroll-list#readme",
+  "devDependencies": {
+    "rollup": "^0.43.0",
+    "rollup-plugin-babel": "^2.7.1"
+  }
 }
