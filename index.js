@@ -12,14 +12,6 @@ let component = {
             type: Number,
             required: true
         },
-        rtag: {
-            type: String,
-            default: 'div'
-        },
-        wtag: {
-            type: String,
-            default: 'div'
-        },
         onScroll: Function
     },
     delta: { // an extra object helping to calculate
@@ -111,11 +103,11 @@ let component = {
         delta.end = remains + benchs;
         delta.keeps = remains + benchs;
     },
-    render(createElement) {
+    render(h) {
         let showList = this.filter(this.$slots.default);
         let delta = this.$options.delta;
 
-        return createElement(this.rtag, {
+        return h('div', {
             'ref': 'container',
             'style': {
                 'display': 'block',
@@ -126,7 +118,7 @@ let component = {
                 '&scroll': this.handleScroll
             }
         }, [
-            createElement(this.wtag, {
+            h('div', {
                 'style': {
                     'display': 'block',
                     'padding-top': delta.paddingTop + 'px',

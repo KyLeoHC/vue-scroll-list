@@ -18,18 +18,9 @@ var component = {
             type: Number,
             required: true
         },
-        rtag: {
-            type: String,
-            default: 'div'
-        },
-        wtag: {
-            type: String,
-            default: 'div'
-        },
         onScroll: Function
     },
-    // an object helping to calculate
-    delta: {
+    delta: { // an extra object helping to calculate
         start: 0, // start index
         end: 0, // end index
         total: 0, // all items count
@@ -116,11 +107,14 @@ var component = {
         delta.end = remains + benchs;
         delta.keeps = remains + benchs;
     },
-    render: function render(createElement) {
+    render: function render(h, _ref) {
+        var props = _ref.props,
+            listeners = _ref.listeners;
+
         var showList = this.filter(this.$slots.default);
         var delta = this.$options.delta;
 
-        return createElement(this.rtag, {
+        return h('div', {
             'ref': 'container',
             'style': {
                 'display': 'block',
@@ -130,7 +124,7 @@ var component = {
             'on': {
                 '&scroll': this.handleScroll
             }
-        }, [createElement(this.wtag, {
+        }, [h('div', {
             'style': {
                 'display': 'block',
                 'padding-top': delta.paddingTop + 'px',
