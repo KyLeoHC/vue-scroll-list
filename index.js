@@ -28,9 +28,7 @@ let component = {
 
             this.updateZone(scrollTop);
 
-            if (this.onScroll) {
-                this.onScroll(e, scrollTop);
-            }
+            this.onScroll && this.onScroll(e, scrollTop);
         },
         findOvers(offset) {
             let overs = 0;
@@ -51,12 +49,10 @@ let component = {
                 this.$emit('toTop');
             }
 
-            // need moving items at lease one unit height
             let start = overs || 0;
             let end = overs ? (overs + delta.keeps) : delta.keeps;
             let isOverflow = delta.total - delta.keeps > 0;
 
-            // avoid overflow range
             if (isOverflow && overs + this.remain >= delta.total) {
                 end = delta.total;
                 start = delta.total - delta.keeps;
@@ -66,7 +62,6 @@ let component = {
             delta.end = end;
             delta.start = start;
 
-            // call component to update shown items
             this.$forceUpdate();
         },
         filter(slots) {
@@ -80,6 +75,7 @@ let component = {
             let slotList = slots.filter(function (slot, index) {
                 return index >= delta.start && index <= delta.end;
             });
+            let sliceList = this.sizeList.slice(0, delta.start);
 
             delta.total = slots.length;
             delta.allPadding = this.sizeList
@@ -87,7 +83,6 @@ let component = {
                 .reduce((a, b) => {
                     return a + b;
                 });
-            let sliceList = this.sizeList.slice(0, delta.start);
             delta.paddingTop = sliceList.length ? sliceList.reduce((a, b) => {
                 return a + b;
             }) : 0;
