@@ -1,6 +1,6 @@
 {
   "name": "vue-scroll-list",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "support infinite scroll list with vue",
   "main": "dist/vue-scroll-list.js",
   "directories": {
