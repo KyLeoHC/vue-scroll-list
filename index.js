@@ -22,8 +22,7 @@ let component = {
         },
         onScroll: Function
     },
-    // an object helping to calculate
-    delta: {
+    delta: { // an extra object helping to calculate
         start: 0, // start index
         end: 0, // end index
         total: 0, // all items count
