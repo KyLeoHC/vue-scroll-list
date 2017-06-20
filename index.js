@@ -35,7 +35,7 @@ let component = {
             // @todo: need to optimize this searching efficiency
             let overs = 0;
             for (let length = this.sizeList.length, height = this.sizeList[0]; overs < length; overs++) {
-                if (offset > height) {
+                if (offset >= height) {
                     height += this.sizeList[overs + 1];
                 } else {
                     break;
@@ -51,6 +51,7 @@ let component = {
                 this.$emit('toTop');
             }
 
+            // @todo: need to rewrite this logic
             let start = overs || 0;
             let end = overs ? (overs + delta.keeps) : delta.keeps;
             let isOverflow = delta.total - delta.keeps > 0;

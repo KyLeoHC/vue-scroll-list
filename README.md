@@ -10,4 +10,4 @@ $ npm install vue-scroll-list --save-dev
 ```
 
 ## Usage
-Refer to the example directory(Still in development).
+Refer to the example directory(<strong>Still in development</strong>).
