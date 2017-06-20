@@ -31,6 +31,8 @@ let component = {
             this.onScroll && this.onScroll(e, scrollTop);
         },
         findOvers(offset) {
+            // compute overs by comparing offset with the height of each item
+            // @todo: need to optimize this searching efficiency
             let overs = 0;
             for (let length = this.sizeList.length, height = this.sizeList[0]; overs < length; overs++) {
                 if (offset > height) {
@@ -109,7 +111,7 @@ let component = {
                 'overflow-y': 'auto',
                 'height': this.viewHeight + 'px'
             },
-            'on': {
+            'on': { // '&' support passive event
                 '&scroll': this.handleScroll
             }
         }, [
