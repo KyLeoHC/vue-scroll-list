@@ -34,11 +34,11 @@ var component = {
 
             this.updateZone(scrollTop);
 
-            if (this.onScroll) {
-                this.onScroll(e, scrollTop);
-            }
+            this.onScroll && this.onScroll(e, scrollTop);
         },
         findOvers: function findOvers(offset) {
+            // compute overs by comparing offset with the height of each item
+            // @todo: need to optimize this searching efficiency
             var overs = 0;
             for (var length = this.sizeList.length, height = this.sizeList[0]; overs < length; overs++) {
                 if (offset > height) {
@@ -57,12 +57,10 @@ var component = {
                 this.$emit('toTop');
             }
 
-            // need moving items at lease one unit height
             var start = overs || 0;
             var end = overs ? overs + delta.keeps : delta.keeps;
             var isOverflow = delta.total - delta.keeps > 0;
 
-            // avoid overflow range
             if (isOverflow && overs + this.remain >= delta.total) {
                 end = delta.total;
                 start = delta.total - delta.keeps;
@@ -72,7 +70,6 @@ var component = {
             delta.end = end;
             delta.start = start;
 
-            // call component to update shown items
             this.$forceUpdate();
         },
         filter: function filter(slots) {
@@ -86,12 +83,12 @@ var component = {
             var slotList = slots.filter(function (slot, index) {
                 return index >= delta.start && index <= delta.end;
             });
+            var sliceList = this.sizeList.slice(0, delta.start);
 
             delta.total = slots.length;
             delta.allPadding = this.sizeList.slice(delta.keeps).reduce(function (a, b) {
                 return a + b;
             });
-            var sliceList = this.sizeList.slice(0, delta.start);
             delta.paddingTop = sliceList.length ? sliceList.reduce(function (a, b) {
                 return a + b;
             }) : 0;
@@ -107,10 +104,7 @@ var component = {
         delta.end = remains + benchs;
         delta.keeps = remains + benchs;
     },
-    render: function render(h, _ref) {
-        var props = _ref.props,
-            listeners = _ref.listeners;
-
+    render: function render(h) {
         var showList = this.filter(this.$slots.default);
         var delta = this.$options.delta;
 
@@ -121,7 +115,7 @@ var component = {
                 'overflow-y': 'auto',
                 'height': this.viewHeight + 'px'
             },
-            'on': {
+            'on': { // '&' support passive event
                 '&scroll': this.handleScroll
             }
         }, [h('div', {
