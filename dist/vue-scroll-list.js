@@ -1,4 +1,10 @@
-let component = {
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global['vue-scroll-list'] = global['vue-scroll-list'] || {}, global['vue-scroll-list'].js = factory());
+}(this, (function () { 'use strict';
+
+var component = {
     props: {
         sizeList: {
             type: Array,
@@ -32,8 +38,8 @@ let component = {
         paddingTop: 0 // container wrapper real padding-top
     },
     methods: {
-        handleScroll(e) {
-            let scrollTop = this.$refs.container.scrollTop;
+        handleScroll: function handleScroll(e) {
+            var scrollTop = this.$refs.container.scrollTop;
 
             this.updateZone(scrollTop);
 
@@ -41,9 +47,9 @@ let component = {
                 this.onScroll(e, scrollTop);
             }
         },
-        findOvers(offset) {
-            let overs = 0;
-            for (let length = this.sizeList.length, height = this.sizeList[0]; overs < length; overs++) {
+        findOvers: function findOvers(offset) {
+            var overs = 0;
+            for (var length = this.sizeList.length, height = this.sizeList[0]; overs < length; overs++) {
                 if (offset > height) {
                     height += this.sizeList[overs + 1];
                 } else {
@@ -52,18 +58,18 @@ let component = {
             }
             return overs;
         },
-        updateZone(offset) {
-            let delta = this.$options.delta;
-            let overs = this.findOvers(offset);
+        updateZone: function updateZone(offset) {
+            var delta = this.$options.delta;
+            var overs = this.findOvers(offset);
 
             if (!offset && delta.total) {
                 this.$emit('toTop');
             }
 
             // need moving items at lease one unit height
-            let start = overs || 0;
-            let end = overs ? (overs + delta.keeps) : delta.keeps;
-            let isOverflow = delta.total - delta.keeps > 0;
+            var start = overs || 0;
+            var end = overs ? overs + delta.keeps : delta.keeps;
+            var isOverflow = delta.total - delta.keeps > 0;
 
             // avoid overflow range
             if (isOverflow && overs + this.remain >= delta.total) {
@@ -78,43 +84,41 @@ let component = {
             // call component to update shown items
             this.$forceUpdate();
         },
-        filter(slots) {
-            let delta = this.$options.delta;
+        filter: function filter(slots) {
+            var delta = this.$options.delta;
 
             if (!slots) {
                 slots = [];
                 delta.start = 0;
             }
 
-            let slotList = slots.filter(function (slot, index) {
+            var slotList = slots.filter(function (slot, index) {
                 return index >= delta.start && index <= delta.end;
             });
 
             delta.total = slots.length;
-            delta.allPadding = this.sizeList
-                .slice(delta.keeps)
-                .reduce((a, b) => {
-                    return a + b;
-                });
-            let sliceList = this.sizeList.slice(0, delta.start);
-            delta.paddingTop = sliceList.length ? sliceList.reduce((a, b) => {
+            delta.allPadding = this.sizeList.slice(delta.keeps).reduce(function (a, b) {
+                return a + b;
+            });
+            var sliceList = this.sizeList.slice(0, delta.start);
+            delta.paddingTop = sliceList.length ? sliceList.reduce(function (a, b) {
                 return a + b;
             }) : 0;
 
             return slotList;
         }
     },
-    beforeMount() {
-        let remains = this.remain;
-        let delta = this.$options.delta;
-        let benchs = Math.round(remains / 2);
+    beforeMount: function beforeMount() {
+        var remains = this.remain;
+        var delta = this.$options.delta;
+        var benchs = Math.round(remains / 2);
 
         delta.end = remains + benchs;
         delta.keeps = remains + benchs;
     },
-    render(createElement) {
-        let showList = this.filter(this.$slots.default);
-        let delta = this.$options.delta;
+    render: function render(createElement) {
+        var showList = this.filter(this.$slots.default);
+        var delta = this.$options.delta;
 
         return createElement(this.rtag, {
             'ref': 'container',
@@ -126,16 +130,16 @@ let component = {
             'on': {
                 '&scroll': this.handleScroll
             }
-        }, [
-            createElement(this.wtag, {
-                'style': {
-                    'display': 'block',
-                    'padding-top': delta.paddingTop + 'px',
-                    'padding-bottom': delta.allPadding - delta.paddingTop + 'px'
-                }
-            }, showList)
-        ]);
+        }, [createElement(this.wtag, {
+            'style': {
+                'display': 'block',
+                'padding-top': delta.paddingTop + 'px',
+                'padding-bottom': delta.allPadding - delta.paddingTop + 'px'
+            }
+        }, showList)]);
     }
 };
 
-export default component;
+return component;
+
+})));
