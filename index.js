@@ -105,18 +105,21 @@ let component = {
         let delta = this.$options.delta;
 
         return h('div', {
-            'ref': 'container',
-            'style': {
+            ref: 'container',
+            class: {
+                'scroll-container': true
+            },
+            style: {
                 'display': 'block',
                 'overflow-y': 'auto',
                 'height': this.viewHeight + 'px'
             },
-            'on': { // '&' support passive event
+            on: { // '&' support passive event
                 '&scroll': this.handleScroll
             }
         }, [
             h('div', {
-                'style': {
+                style: {
                     'display': 'block',
                     'padding-top': delta.paddingTop + 'px',
                     'padding-bottom': delta.allPadding - delta.paddingTop + 'px'

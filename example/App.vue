@@ -4,7 +4,9 @@
             <scroll-list
                     :size-list="heightList"
                     :remain="10"
-                    :view-height="400">
+                    :view-height="400"
+                    @toTop="onTop"
+                    @toBottom="onBottom">
                 <li v-for="(item, index) in list"
                     :key="item.name"
                     :style="{height: item.itemHeight + 'px'}">
@@ -28,6 +30,14 @@
         components: {
             scrollList
         },
+        methods: {
+            onTop() {
+                console.log('page to top.');
+            },
+            onBottom() {
+                console.log('page to bottom.');
+            }
+        },
         created() {
             for (let i = 0; i < 40; i++) {
                 let itemHeight = Math.random() > 0.5 ? 40 : 100;
@@ -44,5 +54,9 @@
 <style scoped>
     ul {
         border: 1px solid #eee;
+    }
+
+    .scroll-container {
+        transform: translate3d(0, 0, 0);
     }
 </style>
