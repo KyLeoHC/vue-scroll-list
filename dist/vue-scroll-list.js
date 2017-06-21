@@ -12,7 +12,7 @@ var component = {
         },
         remain: {
             type: Number,
-            required: true
+            default: 10
         }
     },
     delta: { // an extra object helping to calculate
