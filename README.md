@@ -1,3 +1,7 @@
+<a href="https://www.npmjs.com/package/vue-scroll-list">
+    <img src="https://img.shields.io/npm/v/vue-scroll-list.svg?style=flat" alt="NPM version">
+</a>
+
 # vue-scroll-list
 > A vue component support infinite scroll list.Different item height is also supported.
 
