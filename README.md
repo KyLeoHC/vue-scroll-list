@@ -96,12 +96,14 @@ note: You can run this demo by `npm run dev`.
 ## Props and Events
 
 Available `Prop` :
+
 *Prop* | *Type* | *Required* | *Description* |
 :--- | :--- | :--- | :--- |
 | heights | Array | ✓ | A array contains all height of your item. |
 | remain | Number | * | The number of item that show in view port.(default `10`) |
 
 Available `Event` :
+
 *Event* | *Description* |
 :--- | :--- |
 | toTop | An event emit by this library when this list is scrolled on top. |
