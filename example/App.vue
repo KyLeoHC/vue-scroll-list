@@ -40,7 +40,7 @@
                 this.createData();
             },
             onScroll(event) {
-                // console.log(event);
+                console.log(event);
             },
             createData() {
                 let size = 40;
@@ -57,8 +57,6 @@
             }
         },
         created() {
-            window.__list = this.list;
-            window.__heightList = this.heightList;
             this.createData();
         }
     };
