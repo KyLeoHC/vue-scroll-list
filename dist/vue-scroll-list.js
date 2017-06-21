@@ -6,48 +6,48 @@
 
 var component = {
     props: {
-        sizeList: {
+        heights: {
             type: Array,
             required: true
         },
         remain: {
             type: Number,
             required: true
-        },
-        viewHeight: {
-            type: Number,
-            required: true
-        },
-        onScroll: Function
+        }
     },
     delta: { // an extra object helping to calculate
         start: 0, // start index
         end: 0, // end index
         total: 0, // all items count
         keeps: 0, // number of item keeping in real dom
-        allPadding: 0, // all padding of not-render-yet doms
-        paddingTop: 0 // container wrapper real padding-top
+        paddingTop: 0, // all padding of top dom
+        paddingBottom: 0, // all padding of bottom dom
+        reserve: 6 // number of reserve dom for pre-render
     },
     methods: {
-        handleScroll: function handleScroll(e) {
-            var scrollTop = this.$refs.container.scrollTop;
+        handleScroll: function handleScroll(event) {
+            var scrollTop = this.$el.scrollTop;
 
             this.updateZone(scrollTop);
 
-            this.onScroll && this.onScroll(e, scrollTop);
+            this.$emit('scrolling', event);
         },
         findOvers: function findOvers(offset) {
             // compute overs by comparing offset with the height of each item
             // @todo: need to optimize this searching efficiency
+            var delta = this.$options.delta;
             var overs = 0;
-            for (var length = this.sizeList.length, height = this.sizeList[0]; overs < length; overs++) {
-                if (offset > height) {
-                    height += this.sizeList[overs + 1];
+            var length = this.heights.length;
+            var height = this.heights[0];
+            var topReserve = Math.floor(delta.reserve / 2);
+            for (; overs < length; overs++) {
+                if (offset >= height) {
+                    height += this.heights[overs + 1];
                 } else {
                     break;
                 }
             }
-            return overs;
+            return overs > topReserve - 1 ? overs - topReserve : 0;
         },
         updateZone: function updateZone(offset) {
             var delta = this.$options.delta;
@@ -58,17 +58,20 @@ var component = {
             }
 
             var start = overs || 0;
-            var end = overs ? overs + delta.keeps : delta.keeps;
-            var isOverflow = delta.total - delta.keeps > 0;
+            var end = start + delta.keeps;
+            var totalHeight = this.heights.reduce(function (a, b) {
+                return a + b;
+            });
 
-            if (isOverflow && overs + this.remain >= delta.total) {
-                end = delta.total;
+            // console.log(offset, this.$el.clientHeight, totalHeight);
+            if (offset && offset + this.$el.clientHeight >= totalHeight) {
                 start = delta.total - delta.keeps;
+                end = delta.total - 1;
                 this.$emit('toBottom');
             }
 
-            delta.end = end;
             delta.start = start;
+            delta.end = end;
 
             this.$forceUpdate();
         },
@@ -83,13 +86,15 @@ var component = {
             var slotList = slots.filter(function (slot, index) {
                 return index >= delta.start && index <= delta.end;
             });
-            var sliceList = this.sizeList.slice(0, delta.start);
-
+            var topList = this.heights.slice(0, delta.start);
+            var bottomList = this.heights.slice(delta.end + 1);
             delta.total = slots.length;
-            delta.allPadding = this.sizeList.slice(delta.keeps).reduce(function (a, b) {
+            // consider that the item height may change in any case
+            // so we compute paddingTop and paddingBottom every time
+            delta.paddingTop = topList.length ? topList.reduce(function (a, b) {
                 return a + b;
-            });
-            delta.paddingTop = sliceList.length ? sliceList.reduce(function (a, b) {
+            }) : 0;
+            delta.paddingBottom = bottomList.length ? bottomList.reduce(function (a, b) {
                 return a + b;
             }) : 0;
 
@@ -99,30 +104,31 @@ var component = {
     beforeMount: function beforeMount() {
         var remains = this.remain;
         var delta = this.$options.delta;
-        var benchs = Math.round(remains / 2);
 
-        delta.end = remains + benchs;
-        delta.keeps = remains + benchs;
+        delta.end = remains + delta.reserve - 1;
+        delta.keeps = remains + delta.reserve;
     },
     render: function render(h) {
         var showList = this.filter(this.$slots.default);
         var delta = this.$options.delta;
 
         return h('div', {
-            'ref': 'container',
-            'style': {
+            class: {
+                'scroll-container': true
+            },
+            style: {
                 'display': 'block',
                 'overflow-y': 'auto',
-                'height': this.viewHeight + 'px'
+                'height': '100%'
             },
-            'on': { // '&' support passive event
+            on: { // '&' support passive event
                 '&scroll': this.handleScroll
             }
         }, [h('div', {
-            'style': {
+            style: {
                 'display': 'block',
                 'padding-top': delta.paddingTop + 'px',
-                'padding-bottom': delta.allPadding - delta.paddingTop + 'px'
+                'padding-bottom': delta.paddingBottom + 'px'
             }
         }, showList)]);
     }

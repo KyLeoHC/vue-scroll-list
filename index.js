@@ -1,47 +1,47 @@
 let component = {
     props: {
-        sizeList: {
+        heights: {
             type: Array,
             required: true
         },
         remain: {
             type: Number,
             required: true
-        },
-        viewHeight: {
-            type: Number,
-            required: true
-        },
-        onScroll: Function
+        }
     },
     delta: { // an extra object helping to calculate
         start: 0, // start index
         end: 0, // end index
         total: 0, // all items count
         keeps: 0, // number of item keeping in real dom
-        allPadding: 0, // all padding of not-render-yet doms
-        paddingTop: 0 // container wrapper real padding-top
+        paddingTop: 0, // all padding of top dom
+        paddingBottom: 0, // all padding of bottom dom
+        reserve: 6 // number of reserve dom for pre-render
     },
     methods: {
-        handleScroll(e) {
-            let scrollTop = this.$refs.container.scrollTop;
+        handleScroll(event) {
+            let scrollTop = this.$el.scrollTop;
 
             this.updateZone(scrollTop);
 
-            this.onScroll && this.onScroll(e, scrollTop);
+            this.$emit('scrolling', event);
         },
         findOvers(offset) {
             // compute overs by comparing offset with the height of each item
             // @todo: need to optimize this searching efficiency
+            let delta = this.$options.delta;
             let overs = 0;
-            for (let length = this.sizeList.length, height = this.sizeList[0]; overs < length; overs++) {
+            let length = this.heights.length;
+            let height = this.heights[0];
+            let topReserve = Math.floor(delta.reserve / 2);
+            for (; overs < length; overs++) {
                 if (offset >= height) {
-                    height += this.sizeList[overs + 1];
+                    height += this.heights[overs + 1];
                 } else {
                     break;
                 }
             }
-            return overs;
+            return overs > topReserve - 1 ? overs - topReserve : 0;
         },
         updateZone(offset) {
             let delta = this.$options.delta;
@@ -51,19 +51,21 @@ let component = {
                 this.$emit('toTop');
             }
 
-            // @todo: need to rewrite this logic
             let start = overs || 0;
-            let end = overs ? (overs + delta.keeps) : delta.keeps;
-            let isOverflow = delta.total - delta.keeps > 0;
+            let end = start + delta.keeps;
+            let totalHeight = this.heights.reduce((a, b) => {
+                return a + b;
+            });
 
-            if (isOverflow && overs + this.remain >= delta.total) {
-                end = delta.total;
+            // console.log(offset, this.$el.clientHeight, totalHeight);
+            if (offset && offset + this.$el.clientHeight >= totalHeight) {
                 start = delta.total - delta.keeps;
+                end = delta.total - 1;
                 this.$emit('toBottom');
             }
 
-            delta.end = end;
             delta.start = start;
+            delta.end = end;
 
             this.$forceUpdate();
         },
@@ -78,15 +80,15 @@ let component = {
             let slotList = slots.filter(function (slot, index) {
                 return index >= delta.start && index <= delta.end;
             });
-            let sliceList = this.sizeList.slice(0, delta.start);
-
+            let topList = this.heights.slice(0, delta.start);
+            let bottomList = this.heights.slice(delta.end + 1);
             delta.total = slots.length;
-            delta.allPadding = this.sizeList
-                .slice(delta.keeps)
-                .reduce((a, b) => {
-                    return a + b;
-                });
-            delta.paddingTop = sliceList.length ? sliceList.reduce((a, b) => {
+            // consider that the item height may change in any case
+            // so we compute paddingTop and paddingBottom every time
+            delta.paddingTop = topList.length ? topList.reduce((a, b) => {
+                return a + b;
+            }) : 0;
+            delta.paddingBottom = bottomList.length ? bottomList.reduce((a, b) => {
                 return a + b;
             }) : 0;
 
@@ -96,24 +98,22 @@ let component = {
     beforeMount() {
         let remains = this.remain;
         let delta = this.$options.delta;
-        let benchs = Math.round(remains / 2);
 
-        delta.end = remains + benchs;
-        delta.keeps = remains + benchs;
+        delta.end = remains + delta.reserve - 1;
+        delta.keeps = remains + delta.reserve;
     },
     render(h) {
         let showList = this.filter(this.$slots.default);
         let delta = this.$options.delta;
 
         return h('div', {
-            ref: 'container',
             class: {
                 'scroll-container': true
             },
             style: {
                 'display': 'block',
                 'overflow-y': 'auto',
-                'height': this.viewHeight + 'px'
+                'height': '100%'
             },
             on: { // '&' support passive event
                 '&scroll': this.handleScroll
@@ -123,7 +123,7 @@ let component = {
                 style: {
                     'display': 'block',
                     'padding-top': delta.paddingTop + 'px',
-                    'padding-bottom': delta.allPadding - delta.paddingTop + 'px'
+                    'padding-bottom': delta.paddingBottom + 'px'
                 }
             }, showList)
         ]);
