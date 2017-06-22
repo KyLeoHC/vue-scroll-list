@@ -53,6 +53,7 @@ var component = {
             var delta = this.$options.delta;
             var overs = this.findOvers(offset);
 
+            // scroll to top
             if (!offset && delta.total) {
                 this.$emit('toTop');
             }
@@ -63,7 +64,7 @@ var component = {
                 return a + b;
             });
 
-            // console.log(offset, this.$el.clientHeight, totalHeight);
+            // scroll to bottom
             if (offset && offset + this.$el.clientHeight >= totalHeight) {
                 start = delta.total - delta.keeps;
                 end = delta.total - 1;

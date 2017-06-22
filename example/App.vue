@@ -1,5 +1,8 @@
 <template>
     <div id="app">
+        <h2>vue-scroll-list with infinite data</h2>
+        <h3>random height</h3>
+        <h4>total: {{count}}</h4>
         <ul>
             <scroll-list
                     :heights="heightList"
@@ -8,9 +11,9 @@
                     @toBottom="onBottom"
                     @scrolling="onScroll">
                 <li v-for="(item, index) in list"
-                    :key="item.name"
-                    :style="{height: item.itemHeight + 'px'}">
-                    {{item.name}}/{{item.price}}/{{item.itemHeight}}
+                    :key="item.index"
+                    :style="{height: item.itemHeight + 'px', 'line-height': item.itemHeight + 'px'}">
+                    index:{{item.index}} / height:{{item.itemHeight}}
                 </li>
             </scroll-list>
         </ul>
@@ -33,38 +36,62 @@
         },
         methods: {
             onTop() {
-                console.log('page to top.');
+                console.log('[demo]:page to top.');
             },
             onBottom() {
-                console.log('page to bottom.');
-                this.createData();
+                console.log('[demo]:page to bottom.');
+                !window.__stopLoadData && this.createData();
             },
             onScroll(event) {
-                console.log(event);
+                window.__showScrollEvent && console.log(event);
             },
             createData() {
-                let size = 40;
+                let size = window.__createSize || 40;
                 this.count += size;
                 for (let i = this.count - size; i < this.count; i++) {
-                    let itemHeight = Math.random() > 0.5 ? 40 : 100;
+                    let itemHeight = Math.round(Math.random() * 100) + 40;
                     this.list.push({
-                        name: 'name-' + i,
-                        price: Math.floor(Math.random() * 1000),
+                        index: i,
                         itemHeight: itemHeight
                     });
                     this.heightList.push(itemHeight);
                 }
+                console.log('[demo]:' + size + ' items are created.')
+            },
+            logSomeInfo() {
+                console.log('%cThere are some useful variables in window object:', 'color: green');
+                console.log('%c- `__createSize`: the number of items are created every time.', 'color: green');
+                console.log('%c- `__stopLoadData`: set true to stop loading data when the page is on bottom.', 'color: green');
+                console.log('%c- `__showScrollEvent`: set true to show scroll event.', 'color: green');
             }
         },
         created() {
+            window.__createSize = 40;
+            window.__stopLoadData = false;
+            window.__showScrollEvent = false;
             this.createData();
+            this.logSomeInfo();
         }
     };
 </script>
 <style scoped>
+    #app {
+        text-align: center;
+    }
+
     ul {
-        border: 1px solid #eee;
         height: 400px;
+        padding: 0;
+        border: 1px solid #eee;
+    }
+
+    li {
+        border-bottom: 1px solid #eee;
+        overflow: hidden;
+    }
+
+    li:last-child {
+        border-bottom: 0;
     }
 
     .scroll-container {

@@ -5,11 +5,6 @@ let config = {
     entry: {
         index: './example/index'
     },
-    output: {
-        path: path.resolve(__dirname, 'build'),
-        publicPath: '/build/',
-        filename: '[name].js'
-    },
     resolve: {
         extensions: ['.js', '.vue'],
         alias: {
@@ -23,15 +18,28 @@ let config = {
                 test: /\.vue$/,
                 loader: 'vue-loader',
                 options: {}
+            },
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: [
+                    {
+                        loader: 'babel-loader'
+                    }
+                ]
             }
         ]
     },
-    devServer: {
-        contentBase: './example',
-        host: '0.0.0.0',
-        port: '8686',
-        noInfo: true
-    }
+    plugins: [
+        new webpack.LoaderOptionsPlugin({
+            options: {
+                babel: {
+                    presets: ['es2015'],
+                    plugins: ['transform-runtime']
+                }
+            }
+        })
+    ]
 };
 
 module.exports = config;
