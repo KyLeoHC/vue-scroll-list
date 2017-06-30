@@ -26,6 +26,7 @@ let config = {
                     {
                         loader: 'babel-loader',
                         options: {
+                            babelrc: false, // don't read '.babelrc' file
                             presets: ['es2015'],
                             plugins: ['transform-runtime']
                         }
