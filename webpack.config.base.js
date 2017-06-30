@@ -31,14 +31,14 @@ let config = {
         ]
     },
     plugins: [
-        new webpack.LoaderOptionsPlugin({
-            options: {
-                babel: {
-                    presets: ['es2015'],
-                    plugins: ['transform-runtime']
-                }
-            }
-        })
+        // new webpack.LoaderOptionsPlugin({
+        //     options: {
+        //         babel: {
+        //             presets: ['es2015'],
+        //             plugins: ['transform-runtime']
+        //         }
+        //     }
+        // })
     ]
 };
 
