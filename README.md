@@ -4,8 +4,7 @@
 
 # vue-scroll-list
 > A vue component support infinite scroll list.Different item height is also supported.
-
-This library is inspired by [vue-virtual-scroll-list](https://github.com/tangbc/vue-virtual-scroll-list).  
+ 
 note: Vue version >= 2.3 is needed.
 
 ## Install
