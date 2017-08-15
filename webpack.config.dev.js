@@ -20,7 +20,8 @@ baseConfig.plugins.push(
 baseConfig.devServer = {
     host: '0.0.0.0',
     port: '8686',
-    noInfo: true
+    noInfo: true,
+    disableHostCheck: true
 };
 
 module.exports = baseConfig;
