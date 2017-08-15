@@ -1,3 +1,5 @@
+import IScroll from './lib/iScroll';
+
 let component = {
     props: {
         heights: {
@@ -8,6 +10,11 @@ let component = {
             type: Number,
             default: 10
         }
+    },
+    data() {
+        return {
+            scrollObj: null
+        };
     },
     delta: { // an extra object helping to calculate
         start: 0, // start index
@@ -20,8 +27,8 @@ let component = {
     },
     methods: {
         handleScroll(event) {
-            let scrollTop = this.$el.scrollTop;
-
+            // let scrollTop = this.$el.scrollTop;
+            let scrollTop = event.scrollTop;
             this.updateZone(scrollTop);
 
             this.$emit('scrolling', event);
@@ -69,6 +76,9 @@ let component = {
             delta.end = end;
 
             this.$forceUpdate();
+            this.$nextTick(() => {
+                this.scrollObj.refresh();
+            });
         },
         filter(slots) {
             let delta = this.$options.delta;
@@ -103,6 +113,17 @@ let component = {
         delta.end = remains + delta.reserve - 1;
         delta.keeps = remains + delta.reserve;
     },
+    mounted() {
+        console.log('init scroll object');
+        this.scrollObj = new IScroll('.scroll-container', {
+            bounce: false
+        });
+        this.scrollObj.on('scroll', () => {
+            this.handleScroll({
+                scrollTop: -this.scrollObj.y
+            });
+        });
+    },
     render(h) {
         let showList = this.filter(this.$slots.default);
         let delta = this.$options.delta;
@@ -113,12 +134,11 @@ let component = {
             },
             style: {
                 'display': 'block',
-                'overflow-y': 'auto',
                 'height': '100%'
-            },
-            on: { // '&' support passive event
-                '&scroll': this.handleScroll
             }
+            // on: { // '&' support passive event
+            //     '&scroll': this.handleScroll
+            // }
         }, [
             h('div', {
                 style: {

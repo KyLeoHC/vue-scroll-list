@@ -3,19 +3,20 @@
         <h2>vue-scroll-list with infinite data</h2>
         <h3>random height</h3>
         <h4>total: {{count}}</h4>
-        <ul>
+        <div class="wrapper">
             <scroll-list :heights="heightList"
                          :remain="10"
                          @toTop="onTop"
                          @toBottom="onBottom"
                          @scrolling="onScroll">
-                <li v-for="(item, index) in list"
-                    :key="item.index"
-                    :style="{height: item.itemHeight + 'px', 'line-height': item.itemHeight + 'px'}">
+                <div v-for="(item, index) in list"
+                     :key="item.index"
+                     :class="{item: 1}"
+                     :style="{height: item.itemHeight + 'px', 'line-height': item.itemHeight + 'px'}">
                     index:{{item.index}} / height:{{item.itemHeight}}
-                </li>
+                </div>
             </scroll-list>
-        </ul>
+        </div>
     </div>
 </template>
 <script>
@@ -78,23 +79,26 @@
         text-align: center;
     }
 
-    ul {
+    .wrapper {
+        position:relative;
         height: 400px;
         padding: 0;
         border: 1px solid #eee;
         -webkit-overflow-scrolling: touch;
+        overflow: hidden;
     }
 
-    li {
+    .item {
         border-bottom: 1px solid #eee;
         overflow: hidden;
     }
 
-    li:last-child {
+    .item:last-child {
         border-bottom: 0;
     }
 
     .scroll-container {
+        position:relative;
         transform: translate3d(0, 0, 0);
     }
 </style>

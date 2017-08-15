@@ -9,7 +9,7 @@ let config = {
         extensions: ['.js', '.vue'],
         alias: {
             'vue$': 'vue/dist/vue.esm.js',
-            'vue-scroll-list': path.resolve(__dirname, 'index.js')
+            'vue-scroll-list': path.resolve(__dirname, 'src/index.js')
         }
     },
     module: {
