@@ -100,6 +100,7 @@ let component = {
         let remains = this.remain;
         let delta = this.$options.delta;
 
+        delta.start = 0;
         delta.end = remains + delta.reserve - 1;
         delta.keeps = remains + delta.reserve;
     },
