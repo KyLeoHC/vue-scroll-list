@@ -7,6 +7,10 @@ let component = {
         remain: {
             type: Number,
             default: 10
+        },
+        enabled: {
+            type: Boolean,
+            default: true
         }
     },
     delta: { // an extra object helping to calculate
@@ -22,9 +26,19 @@ let component = {
         handleScroll(event) {
             let scrollTop = this.$el.scrollTop;
 
-            this.updateZone(scrollTop);
-
             this.$emit('scrolling', event);
+
+            this.enabled ? this.updateZone(scrollTop) : this.updateZoneNormal(scrollTop);
+        },
+        updateZoneNormal(offset) {
+            // handle the scroll event normally
+            let scrollHeight = this.$el.scrollHeight;
+            let clientHeight = this.$el.clientHeight;
+            if (offset === 0) {
+                this.$emit('toTop');
+            } else if (offset + clientHeight + 5 >= scrollHeight) {
+                this.$emit('toBottom');
+            }
         },
         findOvers(offset) {
             // compute overs by comparing offset with the height of each item
@@ -97,20 +111,22 @@ let component = {
         }
     },
     beforeMount() {
-        let remains = this.remain;
-        let delta = this.$options.delta;
+        if (this.enabled) {
+            let remains = this.remain;
+            let delta = this.$options.delta;
 
-        delta.start = 0;
-        delta.end = remains + delta.reserve - 1;
-        delta.keeps = remains + delta.reserve;
+            delta.start = 0;
+            delta.end = remains + delta.reserve - 1;
+            delta.keeps = remains + delta.reserve;
+        }
     },
     render(h) {
-        let showList = this.filter(this.$slots.default);
+        let showList = this.enabled ? this.filter(this.$slots.default) : this.$slots.default;
         let delta = this.$options.delta;
 
         return h('div', {
             class: {
-                'scroll-container': true
+                'scroll-container': 1
             },
             style: {
                 'display': 'block',

@@ -2,7 +2,7 @@
   "name": "vue-scroll-list",
   "version": "0.3.1",
   "description": "support infinite scroll list with vue",
-  "main": "dist/vue-scroll-list.js",
+  "main": "dist/vue-scroll-list.common.js",
   "directories": {
     "example": "example"
   },
@@ -39,8 +39,8 @@
     "htmlparser2": "^3.9.2",
     "pretty-error": "^2.1.1",
     "renderkid": "^2.0.1",
-    "rollup": "^0.43.0",
-    "rollup-plugin-babel": "^2.7.1",
+    "rollup": "^0.49.2",
+    "rollup-plugin-babel": "^3.0.2",
     "vue": "^2.3.4",
     "vue-loader": "^12.2.1",
     "vue-template-compiler": "^2.3.4",

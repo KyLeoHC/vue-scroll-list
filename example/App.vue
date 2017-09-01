@@ -6,6 +6,7 @@
         <div class="wrapper">
             <scroll-list :heights="heightList"
                          :remain="10"
+                         :enabled="true"
                          @toTop="onTop"
                          @toBottom="onBottom"
                          @scrolling="onScroll">

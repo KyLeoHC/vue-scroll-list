@@ -1,9 +1,3 @@
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-	typeof define === 'function' && define.amd ? define(factory) :
-	(global['vue-scroll-list'] = factory());
-}(this, (function () { 'use strict';
-
 var component = {
     props: {
         heights: {
@@ -152,6 +146,4 @@ var component = {
     }
 };
 
-return component;
-
-})));
+export default component;
