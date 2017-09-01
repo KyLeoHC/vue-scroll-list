@@ -34,9 +34,9 @@ var component = {
 
             this.$emit('scrolling', event);
 
-            this.enabled ? this.updateZone(scrollTop) : this.updateZoneNormal(scrollTop);
+            this.enabled ? this.updateZone(scrollTop) : this.updateZoneNormally(scrollTop);
         },
-        updateZoneNormal: function updateZoneNormal(offset) {
+        updateZoneNormally: function updateZoneNormally(offset) {
             // handle the scroll event normally
             var scrollHeight = this.$el.scrollHeight;
             var clientHeight = this.$el.clientHeight;
