@@ -120,6 +120,9 @@ let component = {
             delta.keeps = remains + delta.reserve;
         }
     },
+    deactivated() {
+        this.updateZone(1);
+    },
     render(h) {
         let showList = this.enabled ? this.filter(this.$slots.default) : this.$slots.default;
         let delta = this.$options.delta;
