@@ -10,7 +10,9 @@
             switch view
         </div>
         <keep-alive>
-            <component :is="view"></component>
+            <component :is="view"
+                       :count.sync="count">
+            </component>
         </keep-alive>
     </div>
 </template>

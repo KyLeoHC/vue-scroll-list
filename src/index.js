@@ -1,4 +1,4 @@
-let component = {
+const component = {
     props: {
         heights: {
             type: Array,
@@ -11,7 +11,16 @@ let component = {
         enabled: {
             type: Boolean,
             default: true
+        },
+        keep: {
+            type: Boolean,
+            default: false
         }
+    },
+    data() {
+        return {
+            scrollTop: 0
+        };
     },
     delta: { // an extra object helping to calculate
         start: 0, // start index
@@ -24,16 +33,16 @@ let component = {
     },
     methods: {
         handleScroll(event) {
-            let scrollTop = this.$el.scrollTop;
-
+            console.log(event);
+            const scrollTop = this.$el.scrollTop;
             this.$emit('scrolling', event);
-
             this.enabled ? this.updateZone(scrollTop) : this.updateZoneNormally(scrollTop);
+            this.scrollTop = scrollTop;
         },
         updateZoneNormally(offset) {
             // handle the scroll event normally
-            let scrollHeight = this.$el.scrollHeight;
-            let clientHeight = this.$el.clientHeight;
+            const scrollHeight = this.$el.scrollHeight;
+            const clientHeight = this.$el.clientHeight;
             if (offset === 0) {
                 this.$emit('toTop');
             } else if (offset + clientHeight + 5 >= scrollHeight) {
@@ -98,7 +107,7 @@ let component = {
             let topList = this.heights.slice(0, delta.start);
             let bottomList = this.heights.slice(delta.end + 1);
             delta.total = slots.length;
-            // consider that the item height may change in any case
+            // consider that the height of item may change in any case
             // so we compute paddingTop and paddingBottom every time
             delta.paddingTop = topList.length ? topList.reduce((a, b) => {
                 return a + b;
@@ -120,12 +129,14 @@ let component = {
             delta.keeps = remains + delta.reserve;
         }
     },
-    deactivated() {
-        this.updateZone(1);
+    activated() {
+        // while work with keep-alive component
+        // set scroll position after 'activated'
+        this.$el.scrollTop = this.keep ? (this.scrollTop || 1) : 1;
     },
     render(h) {
-        let showList = this.enabled ? this.filter(this.$slots.default) : this.$slots.default;
-        let delta = this.$options.delta;
+        const showList = this.enabled ? this.filter(this.$slots.default) : this.$slots.default;
+        const delta = this.$options.delta;
 
         return h('div', {
             class: {

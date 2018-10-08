@@ -3,6 +3,7 @@
         <scroll-list :heights="heightList"
                      :remain="10"
                      :enabled="true"
+                     :keep="true"
                      @toTop="onTop"
                      @toBottom="onBottom"
                      @scrolling="onScroll">

@@ -126,6 +126,7 @@ Available `Prop` :
 :--- | :--- | :--- | :--- |
 | heights | Array | ✓ | A array contains all height of your item. |
 | remain | Number | * | The number of item that show in view port.(default `10`) |
+| keep | Boolean | * | Work with `keep-alive` component,keep scroll position after activated.(default `false`) |
 | enabled | Boolean | * | If you want to render all data directly,please set 'false' for this option.But `toTop`、`toBottom` and `scrolling` event is still available.(default `true`) |
 
 Available `Event` :

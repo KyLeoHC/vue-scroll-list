@@ -13,8 +13,18 @@ var component = {
         enabled: {
             type: Boolean,
             default: true
+        },
+        keep: {
+            type: Boolean,
+            default: false
         }
     },
+    data: function data() {
+        return {
+            scrollTop: 0
+        };
+    },
+
     delta: { // an extra object helping to calculate
         start: 0, // start index
         end: 0, // end index
@@ -26,11 +36,11 @@ var component = {
     },
     methods: {
         handleScroll: function handleScroll(event) {
+            console.log(event);
             var scrollTop = this.$el.scrollTop;
-
             this.$emit('scrolling', event);
-
             this.enabled ? this.updateZone(scrollTop) : this.updateZoneNormally(scrollTop);
+            this.scrollTop = scrollTop;
         },
         updateZoneNormally: function updateZoneNormally(offset) {
             // handle the scroll event normally
@@ -100,7 +110,7 @@ var component = {
             var topList = this.heights.slice(0, delta.start);
             var bottomList = this.heights.slice(delta.end + 1);
             delta.total = slots.length;
-            // consider that the item height may change in any case
+            // consider that the height of item may change in any case
             // so we compute paddingTop and paddingBottom every time
             delta.paddingTop = topList.length ? topList.reduce(function (a, b) {
                 return a + b;
@@ -121,6 +131,11 @@ var component = {
             delta.end = remains + delta.reserve - 1;
             delta.keeps = remains + delta.reserve;
         }
+    },
+    activated: function activated() {
+        // while work with keep-alive component
+        // set scroll position after 'activated'
+        this.$el.scrollTop = this.keep ? this.scrollTop || 1 : 1;
     },
     render: function render(h) {
         var showList = this.enabled ? this.filter(this.$slots.default) : this.$slots.default;
