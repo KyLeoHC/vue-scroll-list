@@ -19,21 +19,18 @@ const component = {
     },
     data() {
         return {
-            scrollTop: 0
+            scrollTop: 0,
+            start: 0, // start index
+            end: 0, // end index
+            total: 0, // all items count
+            keeps: 0, // number of item keeping in real dom
+            paddingTop: 0, // all padding of top dom
+            paddingBottom: 0, // all padding of bottom dom
+            reserve: 6 // number of reserve dom for pre-render
         };
-    },
-    delta: { // an extra object helping to calculate
-        start: 0, // start index
-        end: 0, // end index
-        total: 0, // all items count
-        keeps: 0, // number of item keeping in real dom
-        paddingTop: 0, // all padding of top dom
-        paddingBottom: 0, // all padding of bottom dom
-        reserve: 6 // number of reserve dom for pre-render
     },
     methods: {
         handleScroll(event) {
-            console.log(event);
             const scrollTop = this.$el.scrollTop;
             this.$emit('scrolling', event);
             this.enabled ? this.updateZone(scrollTop) : this.updateZoneNormally(scrollTop);
@@ -52,11 +49,10 @@ const component = {
         findOvers(offset) {
             // compute overs by comparing offset with the height of each item
             // @todo: need to optimize this searching efficiency
-            let delta = this.$options.delta;
             let overs = 0;
             let length = this.heights.length;
             let height = this.heights[0];
-            let topReserve = Math.floor(delta.reserve / 2);
+            let topReserve = Math.floor(this.reserve / 2);
             for (; overs < length; overs++) {
                 if (offset >= height) {
                     height += this.heights[overs + 1];
@@ -67,52 +63,49 @@ const component = {
             return overs > topReserve - 1 ? overs - topReserve : 0;
         },
         updateZone(offset) {
-            let delta = this.$options.delta;
-            let overs = this.findOvers(offset);
+            const overs = this.findOvers(offset);
 
             // scroll to top
-            if (!offset && delta.total) {
+            if (!offset && this.total) {
                 this.$emit('toTop');
             }
 
             let start = overs || 0;
-            let end = start + delta.keeps;
+            let end = start + this.keeps;
             let totalHeight = this.heights.reduce((a, b) => {
                 return a + b;
             });
 
             // scroll to bottom
             if (offset && offset + this.$el.clientHeight >= totalHeight) {
-                start = delta.total - delta.keeps;
-                end = delta.total - 1;
+                start = this.total - this.keeps;
+                end = this.total - 1;
                 this.$emit('toBottom');
             }
 
-            delta.start = start;
-            delta.end = end;
+            this.start = start;
+            this.end = end;
 
             this.$forceUpdate();
         },
         filter(slots) {
-            let delta = this.$options.delta;
-
             if (!slots) {
                 slots = [];
-                delta.start = 0;
+                this.start = 0;
             }
 
-            let slotList = slots.filter(function (slot, index) {
-                return index >= delta.start && index <= delta.end;
+            const slotList = slots.filter((slot, index) => {
+                return index >= this.start && index <= this.end;
             });
-            let topList = this.heights.slice(0, delta.start);
-            let bottomList = this.heights.slice(delta.end + 1);
-            delta.total = slots.length;
+            const topList = this.heights.slice(0, this.start);
+            const bottomList = this.heights.slice(this.end + 1);
+            this.total = slots.length;
             // consider that the height of item may change in any case
             // so we compute paddingTop and paddingBottom every time
-            delta.paddingTop = topList.length ? topList.reduce((a, b) => {
+            this.paddingTop = topList.length ? topList.reduce((a, b) => {
                 return a + b;
             }) : 0;
-            delta.paddingBottom = bottomList.length ? bottomList.reduce((a, b) => {
+            this.paddingBottom = bottomList.length ? bottomList.reduce((a, b) => {
                 return a + b;
             }) : 0;
 
@@ -122,11 +115,10 @@ const component = {
     beforeMount() {
         if (this.enabled) {
             let remains = this.remain;
-            let delta = this.$options.delta;
 
-            delta.start = 0;
-            delta.end = remains + delta.reserve - 1;
-            delta.keeps = remains + delta.reserve;
+            this.start = 0;
+            this.end = remains + this.reserve - 1;
+            this.keeps = remains + this.reserve;
         }
     },
     activated() {
@@ -136,7 +128,6 @@ const component = {
     },
     render(h) {
         const showList = this.enabled ? this.filter(this.$slots.default) : this.$slots.default;
-        const delta = this.$options.delta;
 
         return h('div', {
             class: {
@@ -154,8 +145,8 @@ const component = {
             h('div', {
                 style: {
                     'display': 'block',
-                    'padding-top': delta.paddingTop + 'px',
-                    'padding-bottom': delta.paddingBottom + 'px'
+                    'padding-top': this.paddingTop + 'px',
+                    'padding-bottom': this.paddingBottom + 'px'
                 }
             }, showList)
         ]);
