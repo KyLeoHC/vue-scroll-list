@@ -6,6 +6,7 @@
                 :remain="10"
                 :enabled="true"
                 :keep="true"
+                :step="5"
                 @toTop="onTop"
                 @toBottom="onBottom"
                 @scrolling="onScroll">

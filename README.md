@@ -131,6 +131,8 @@ Available `Prop` :
 | remain | Number | * | The number of item that show in view port.(default `10`) |
 | keep | Boolean | * | Work with `keep-alive` component,keep scroll position after activated.(default `false`) |
 | enabled | Boolean | * | If you want to render all data directly,please set 'false' for this option.But `toTop`、`toBottom` and `scrolling` event is still available.(default `true`) |
+| debounce | Number | * | Milliseconds of using debounce function to ensure scroll event doesn't fire so often.(disabled by default) |
+| step | Number | * | Pixel of using throttle theory to decrease the frequency of scroll event.(disabled by default) |
 
 Available `Event` :
 

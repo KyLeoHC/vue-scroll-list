@@ -31,11 +31,16 @@ var component = {
         },
         debounce: {
             type: Number
+        },
+        step: { // throttle
+            type: Number
         }
     },
     methods: {
         handleScroll: function handleScroll(event) {
             var scrollTop = this.$el.scrollTop;
+            if (!this.ignoreStep && this.step && Math.abs(scrollTop - this.scrollTop) < this.step) return;
+            this.ignoreStep = false;
             this.scrollTop = scrollTop;
             this.$emit('scrolling', event);
             this.updateZone(scrollTop);
@@ -169,6 +174,7 @@ var component = {
     activated: function activated() {
         // while work with keep-alive component
         // set scroll position after 'activated'
+        this.ignoreStep = true;
         this.$el.scrollTop = this.keep ? this.scrollTop || 1 : 1;
     },
     render: function render(h) {
