@@ -148,7 +148,7 @@ Available `Event` :
      v-bind="{'data-height': item.itemHeight}">
 </div>
 ```
-Sometimes you may need to change your the height of each item or filter your item.This may cause some blank problems.So you'd better call `update` function to tell us.
+Sometimes you may need to change the height of each item or filter your item.This may cause some blank problems.So you'd better call `update` function to tell us.
 ```html
 <scroll-list
     ref="vueScrollList"
