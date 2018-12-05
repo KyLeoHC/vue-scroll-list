@@ -1,16 +1,19 @@
 <template>
     <div class="wrapper">
-        <scroll-list :heights="heightList"
-                     :remain="10"
-                     :enabled="true"
-                     :keep="true"
-                     @toTop="onTop"
-                     @toBottom="onBottom"
-                     @scrolling="onScroll">
-            <div v-for="(item, index) in list"
+        <scroll-list
+                ref="vueScrollList"
+                :debounce="0"
+                :remain="10"
+                :enabled="true"
+                :keep="true"
+                @toTop="onTop"
+                @toBottom="onBottom"
+                @scrolling="onScroll">
+            <div v-for="item in list"
                  :key="item.index"
-                 :class="{item: 1}"
-                 :style="{height: item.itemHeight + 'px', 'line-height': item.itemHeight + 'px'}">
+                 :class="['item']"
+                 :style="{height: item.itemHeight + 'px', 'line-height': item.itemHeight + 'px'}"
+                 v-bind="{'data-height': item.itemHeight}">
                 index:{{item.index}} / height:{{item.itemHeight}}
             </div>
         </scroll-list>
@@ -74,7 +77,9 @@
             window.__createSize = 40;
             window.__stopLoadData = false;
             window.__showScrollEvent = false;
-            this.createData();
+            setTimeout(() => {
+                this.createData();
+            }, 2000);
             this.logSomeInfo();
         }
     };

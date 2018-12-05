@@ -1,8 +1,18 @@
+const _debounce = function (fn, wait) {
+    let timeoutId = null;
+    return function () {
+        const laterFn = () => {
+            fn.apply(this, arguments);
+        };
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(laterFn, wait);
+    };
+};
+
 const component = {
     props: {
         heights: {
-            type: Array,
-            required: true
+            type: Array
         },
         remain: {
             type: Number,
@@ -15,26 +25,27 @@ const component = {
         keep: {
             type: Boolean,
             default: false
+        },
+        debounce: {
+            type: Number
         }
-    },
-    data() {
-        return {
-            scrollTop: 0,
-            start: 0, // start index
-            end: 0, // end index
-            total: 0, // all items count
-            keeps: 0, // number of item keeping in real dom
-            paddingTop: 0, // all padding of top dom
-            paddingBottom: 0, // all padding of bottom dom
-            reserve: 6 // number of reserve dom for pre-render
-        };
     },
     methods: {
         handleScroll(event) {
             const scrollTop = this.$el.scrollTop;
-            this.$emit('scrolling', event);
-            this.enabled ? this.updateZone(scrollTop) : this.updateZoneNormally(scrollTop);
             this.scrollTop = scrollTop;
+            this.$emit('scrolling', event);
+            this.updateZone(scrollTop);
+        },
+        updateHeightList() {
+            if (this.heights) {
+                this.heightList = this.heights;
+            } else {
+                const list = this.$slots.default || [];
+                if (list.length !== this.heightList.length) {
+                    this.heightList = list.map(vnode => parseInt(vnode.data.attrs['data-height']));
+                }
+            }
         },
         updateZoneNormally(offset) {
             // handle the scroll event normally
@@ -49,13 +60,13 @@ const component = {
         findOvers(offset) {
             // compute overs by comparing offset with the height of each item
             // @todo: need to optimize this searching efficiency
+            const heightList = this.heightList;
             let overs = 0;
-            let length = this.heights.length;
-            let height = this.heights[0];
+            let height = heightList[0];
             let topReserve = Math.floor(this.reserve / 2);
-            for (; overs < length; overs++) {
+            for (let length = heightList.length; overs < length; overs++) {
                 if (offset >= height) {
-                    height += this.heights[overs + 1];
+                    height += heightList[overs + 1];
                 } else {
                     break;
                 }
@@ -63,32 +74,39 @@ const component = {
             return overs > topReserve - 1 ? overs - topReserve : 0;
         },
         updateZone(offset) {
-            const overs = this.findOvers(offset);
+            if (this.enabled) {
+                this.updateHeightList();
+                const overs = this.findOvers(offset);
 
-            // scroll to top
-            if (!offset && this.total) {
-                this.$emit('toTop');
+                // scroll to top
+                if (!offset && this.total) {
+                    this.$emit('toTop');
+                }
+
+                let start = overs || 0;
+                let end = start + this.keeps;
+                let totalHeight = this.heightList.reduce((a, b) => {
+                    return a + b;
+                });
+
+                // scroll to bottom
+                if (offset && offset + this.$el.clientHeight >= totalHeight) {
+                    start = this.total - this.keeps;
+                    end = this.total - 1;
+                    this.$emit('toBottom');
+                }
+
+                if (this.start !== start || this.end !== end) {
+                    this.start = start;
+                    this.end = end;
+                    this.$forceUpdate();
+                }
+            } else {
+                this.updateZoneNormally(offset);
             }
-
-            let start = overs || 0;
-            let end = start + this.keeps;
-            let totalHeight = this.heights.reduce((a, b) => {
-                return a + b;
-            });
-
-            // scroll to bottom
-            if (offset && offset + this.$el.clientHeight >= totalHeight) {
-                start = this.total - this.keeps;
-                end = this.total - 1;
-                this.$emit('toBottom');
-            }
-
-            this.start = start;
-            this.end = end;
-
-            this.$forceUpdate();
         },
         filter(slots) {
+            this.updateHeightList();
             if (!slots) {
                 slots = [];
                 this.start = 0;
@@ -97,8 +115,8 @@ const component = {
             const slotList = slots.filter((slot, index) => {
                 return index >= this.start && index <= this.end;
             });
-            const topList = this.heights.slice(0, this.start);
-            const bottomList = this.heights.slice(this.end + 1);
+            const topList = this.heightList.slice(0, this.start);
+            const bottomList = this.heightList.slice(this.end + 1);
             this.total = slots.length;
             // consider that the height of item may change in any case
             // so we compute paddingTop and paddingBottom every time
@@ -110,12 +128,30 @@ const component = {
             }) : 0;
 
             return slotList;
+        },
+        update() {
+            this.$nextTick(() => {
+                this.updateZone(this.scrollTop);
+            });
         }
+    },
+    beforeCreate() {
+        // vue won't observe this properties
+        Object.assign(this, {
+            heightList: [], // list of each item height
+            scrollTop: 0, // current scroll position
+            start: 0, // start index
+            end: 0, // end index
+            total: 0, // all items count
+            keeps: 0, // number of item keeping in real dom
+            paddingTop: 0, // all padding of top dom
+            paddingBottom: 0, // all padding of bottom dom
+            reserve: 10 // number of reserve dom for pre-render
+        });
     },
     beforeMount() {
         if (this.enabled) {
             let remains = this.remain;
-
             this.start = 0;
             this.end = remains + this.reserve - 1;
             this.keeps = remains + this.reserve;
@@ -128,18 +164,19 @@ const component = {
     },
     render(h) {
         const showList = this.enabled ? this.filter(this.$slots.default) : this.$slots.default;
+        const debounce = this.debounce;
 
         return h('div', {
-            class: {
-                'scroll-container': 1
-            },
+            class: ['scroll-container'],
             style: {
                 'display': 'block',
                 'overflow-y': 'auto',
                 'height': '100%'
             },
             on: { // '&' support passive event
-                '&scroll': this.handleScroll
+                '&scroll': debounce
+                    ? _debounce(this.handleScroll.bind(this), debounce)
+                    : this.handleScroll
             }
         }, [
             h('div', {
