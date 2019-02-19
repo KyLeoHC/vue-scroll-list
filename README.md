@@ -143,7 +143,7 @@ Available `Event` :
 | scrolling | An event emit by this library when this list is scrolling. |
 
 ## About heights prop
-`heights` property is an array contains all height of your item,but you can tell us then height of each item by setting the `data-height` property.
+`heights` property is an array contains all height of your item,but you can tell us the height of each item by setting the `data-height` property.
 ```html
 <div v-for="item in list"
      :key="item.index"
